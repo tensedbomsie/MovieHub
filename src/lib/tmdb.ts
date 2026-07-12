@@ -12,5 +12,6 @@ export async function searchMovies(query: string): Promise<TmdbSearchResult[]> {
   )
   if (!res.ok) throw new Error('TMDb search failed')
   const data = await res.json()
-  return data.results ?? []
+  const results: (TmdbSearchResult & { popularity?: number })[] = data.results ?? []
+  return results.sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0))
 }

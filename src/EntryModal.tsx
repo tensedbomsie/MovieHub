@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { POSTER_BASE } from './lib/tmdb'
-import StarRating from './StarRating'
-import type { TmdbSearchResult, WatchEntry, WatchStatus } from './types'
+import RatingInput from './RatingInput'
+import type { Reflection, TmdbSearchResult, WatchEntry, WatchStatus } from './types'
 
 const STATUS_OPTIONS: { id: WatchStatus; label: string }[] = [
   { id: 'want', label: 'อยากดู' },
@@ -30,6 +30,8 @@ export default function EntryModal({
   const [watchDate, setWatchDate] = useState(existing?.watch_date ?? '')
   const [tags, setTags] = useState<string[]>(existing?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
+  const [reflections, setReflections] = useState<Reflection[]>(existing?.reflections ?? [])
+  const [reflectionInput, setReflectionInput] = useState('')
   const [saving, setSaving] = useState(false)
 
   const addTag = () => {
@@ -39,6 +41,18 @@ export default function EntryModal({
   }
 
   const removeTag = (t: string) => setTags(tags.filter((x) => x !== t))
+
+  const addReflection = () => {
+    const text = reflectionInput.trim()
+    if (!text) return
+    setReflections([
+      ...reflections,
+      { id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), text },
+    ])
+    setReflectionInput('')
+  }
+
+  const removeReflection = (id: string) => setReflections(reflections.filter((r) => r.id !== id))
 
   const save = async () => {
     setSaving(true)
@@ -54,6 +68,7 @@ export default function EntryModal({
       review: review || null,
       watch_date: watchDate || null,
       tags,
+      reflections,
       updated_at: new Date().toISOString(),
     }
     if (existing) {
@@ -103,8 +118,8 @@ export default function EntryModal({
           </div>
 
           <div>
-            <div className="field-label" style={{ marginBottom: '0.3rem' }}>คะแนน</div>
-            <StarRating value={rating} onChange={setRating} />
+            <div className="field-label" style={{ marginBottom: '0.3rem' }}>คะแนน (เต็ม 10)</div>
+            <RatingInput value={rating} onChange={setRating} />
           </div>
 
           <div>
@@ -139,13 +154,44 @@ export default function EntryModal({
           </div>
 
           <div>
-            <div className="field-label" style={{ marginBottom: '0.3rem' }}>รีวิวสั้นๆ</div>
+            <div className="field-label" style={{ marginBottom: '0.3rem' }}>รีวิวหลังดูจบ / ออกจากโรง</div>
             <textarea
               className="review-textarea"
-              placeholder="เขียนความรู้สึกสั้นๆ..."
+              placeholder="ความรู้สึกทันทีหลังดูจบ..."
               value={review}
               onChange={(e) => setReview(e.target.value)}
             />
+          </div>
+
+          <div>
+            <div className="field-label" style={{ marginBottom: '0.3rem' }}>
+              ความรู้สึกเมื่อเวลาผ่านไป
+            </div>
+            <div className="tag-input-row" style={{ marginBottom: '0.6rem' }}>
+              <input
+                placeholder="กลับมาคิดถึงหนังเรื่องนี้แล้วรู้สึกยังไง..."
+                value={reflectionInput}
+                onChange={(e) => setReflectionInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addReflection()
+                  }
+                }}
+              />
+              <button type="button" className="btn" onClick={addReflection}>บันทึก</button>
+            </div>
+            {reflections.length > 0 && (
+              <div className="reflection-list">
+                {[...reflections].reverse().map((r) => (
+                  <div key={r.id} className="reflection-row">
+                    <span className="reflection-date">{r.date}</span>
+                    <span className="reflection-text">{r.text}</span>
+                    <button type="button" className="tag-remove" onClick={() => removeReflection(r.id)}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

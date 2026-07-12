@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { POSTER_BASE } from './lib/tmdb'
-import StarRating from './StarRating'
+import { RatingBadge } from './RatingInput'
 import SearchModal from './SearchModal'
 import EntryModal from './EntryModal'
 import type { TmdbSearchResult, WatchEntry, WatchStatus } from './types'
@@ -126,7 +126,7 @@ export default function Archive({ session }: { session: Session }) {
                 {entry.release_date ? entry.release_date.slice(0, 4) : ''}
                 {entry.watch_date ? ` · ดูเมื่อ ${entry.watch_date}` : ''}
               </div>
-              {entry.rating && <StarRating value={entry.rating} size="small" />}
+              {entry.rating !== null && <RatingBadge value={entry.rating} />}
             </div>
           </div>
         ))}

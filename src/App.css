@@ -396,24 +396,58 @@ input, select, textarea {
   color: var(--accent);
 }
 
-.star-rating {
-  display: flex;
-  gap: 0.1rem;
-  font-size: 0.85rem;
+.rating-badge {
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--gold);
 }
 
-.star-rating.small {
-  font-size: 0.75rem;
+.rating-input {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
-.star-rating button {
-  background: none;
-  border: none;
-  cursor: pointer;
+.rating-input input[type='range'] {
+  flex: 1;
+  accent-color: var(--gold);
   padding: 0;
-  color: inherit;
-  font-size: inherit;
+  background: transparent;
+  border: none;
+}
+
+.rating-value {
+  min-width: 60px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.reflection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.reflection-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.85rem;
+}
+
+.reflection-date {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  padding-top: 0.1rem;
+}
+
+.reflection-text {
+  flex: 1;
 }
 
 /* ---------- TMDb search modal ---------- */

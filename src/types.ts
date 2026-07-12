@@ -1,5 +1,11 @@
 export type WatchStatus = 'want' | 'watching' | 'watched'
 
+export type Reflection = {
+  id: string
+  date: string
+  text: string
+}
+
 export type WatchEntry = {
   id: string
   owner: string
@@ -13,6 +19,7 @@ export type WatchEntry = {
   review: string | null
   watch_date: string | null
   tags: string[]
+  reflections: Reflection[]
   created_at: string
   updated_at: string
 }
