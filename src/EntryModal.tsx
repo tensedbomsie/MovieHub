@@ -15,18 +15,17 @@ export default function EntryModal({
   session,
   movie,
   existing,
-  showPosters,
   onClose,
   onSaved,
 }: {
   session: Session
   movie: TmdbSearchResult
   existing?: WatchEntry
-  showPosters: boolean
   onClose: () => void
   onSaved: () => void
 }) {
   const [revealed, setRevealed] = useState(false)
+  const [posterHidden, setPosterHidden] = useState(existing?.poster_hidden ?? false)
   const [status, setStatus] = useState<WatchStatus>(existing?.status ?? 'want')
   const [rating, setRating] = useState<number | null>(existing?.rating ?? null)
   const [review, setReview] = useState(existing?.review ?? '')
@@ -72,6 +71,7 @@ export default function EntryModal({
       watch_date: watchDate || null,
       tags,
       reflections,
+      poster_hidden: posterHidden,
       updated_at: new Date().toISOString(),
     }
     if (existing) {
@@ -94,9 +94,9 @@ export default function EntryModal({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="entry-header">
-          {(showPosters || revealed) && movie.poster_path ? (
+          {(!posterHidden || revealed) && movie.poster_path ? (
             <img className="movie-poster" src={`${POSTER_BASE}${movie.poster_path}`} alt={movie.title} />
-          ) : showPosters ? (
+          ) : !posterHidden ? (
             <div className="movie-poster-placeholder">🎬</div>
           ) : (
             <button
@@ -115,6 +115,15 @@ export default function EntryModal({
         </div>
 
         <div className="entry-form">
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={posterHidden}
+              onChange={(e) => setPosterHidden(e.target.checked)}
+            />
+            🙈 ซ่อนโปสเตอร์เรื่องนี้ (สำหรับหนังผีที่ปกน่ากลัว)
+          </label>
+
           <div className="status-picker">
             {STATUS_OPTIONS.map((s) => (
               <button

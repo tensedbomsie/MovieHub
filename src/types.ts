@@ -20,6 +20,7 @@ export type WatchEntry = {
   watch_date: string | null
   tags: string[]
   reflections: Reflection[]
+  poster_hidden: boolean
   created_at: string
   updated_at: string
 }

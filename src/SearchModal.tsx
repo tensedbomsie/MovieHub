@@ -3,11 +3,9 @@ import { searchMovies, POSTER_BASE } from './lib/tmdb'
 import type { TmdbSearchResult } from './types'
 
 export default function SearchModal({
-  showPosters,
   onClose,
   onSelect,
 }: {
-  showPosters: boolean
   onClose: () => void
   onSelect: (movie: TmdbSearchResult) => void
 }) {
@@ -51,10 +49,10 @@ export default function SearchModal({
         <div className="tmdb-result-grid">
           {results.map((m) => (
             <div key={m.id} className="card tmdb-result-card" onClick={() => onSelect(m)}>
-              {showPosters && m.poster_path ? (
+              {m.poster_path ? (
                 <img className="movie-poster" src={`${POSTER_BASE}${m.poster_path}`} alt={m.title} />
               ) : (
-                <div className="movie-poster-placeholder">{showPosters ? '🎬' : '🙈'}</div>
+                <div className="movie-poster-placeholder">🎬</div>
               )}
               <div className="movie-title">{m.title}</div>
             </div>
