@@ -15,15 +15,18 @@ export default function EntryModal({
   session,
   movie,
   existing,
+  showPosters,
   onClose,
   onSaved,
 }: {
   session: Session
   movie: TmdbSearchResult
   existing?: WatchEntry
+  showPosters: boolean
   onClose: () => void
   onSaved: () => void
 }) {
+  const [revealed, setRevealed] = useState(false)
   const [status, setStatus] = useState<WatchStatus>(existing?.status ?? 'want')
   const [rating, setRating] = useState<number | null>(existing?.rating ?? null)
   const [review, setReview] = useState(existing?.review ?? '')
@@ -91,10 +94,18 @@ export default function EntryModal({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="entry-header">
-          {movie.poster_path ? (
+          {(showPosters || revealed) && movie.poster_path ? (
             <img className="movie-poster" src={`${POSTER_BASE}${movie.poster_path}`} alt={movie.title} />
-          ) : (
+          ) : showPosters ? (
             <div className="movie-poster-placeholder">🎬</div>
+          ) : (
+            <button
+              type="button"
+              className="movie-poster-placeholder poster-hidden"
+              onClick={() => setRevealed(true)}
+            >
+              🙈<span>แตะเพื่อดูปก</span>
+            </button>
           )}
           <div className="entry-header-info">
             <h2>{movie.title}</h2>

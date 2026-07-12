@@ -13,6 +13,8 @@ const STATUS_LABEL: Record<WatchStatus, string> = {
   watched: 'ดูแล้ว',
 }
 
+const SHOW_POSTERS_KEY = 'moviehub_show_posters'
+
 export default function Archive({ session }: { session: Session }) {
   const [entries, setEntries] = useState<WatchEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -22,6 +24,19 @@ export default function Archive({ session }: { session: Session }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [pendingMovie, setPendingMovie] = useState<TmdbSearchResult | null>(null)
   const [editingEntry, setEditingEntry] = useState<WatchEntry | null>(null)
+  const [showPosters, setShowPosters] = useState(() => localStorage.getItem(SHOW_POSTERS_KEY) !== 'false')
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set())
+
+  const togglePosters = () => {
+    const next = !showPosters
+    setShowPosters(next)
+    localStorage.setItem(SHOW_POSTERS_KEY, String(next))
+    setRevealedIds(new Set())
+  }
+
+  const revealOne = (id: string) => {
+    setRevealedIds((prev) => new Set(prev).add(id))
+  }
 
   const refresh = async () => {
     setLoading(true)
@@ -65,9 +80,14 @@ export default function Archive({ session }: { session: Session }) {
     <div className="fade-in">
       <div className="page-header">
         <h1>🎬 Archive หนังของฉัน</h1>
-        <button className="btn btn-primary" onClick={() => setSearchOpen(true)}>
-          + เพิ่มหนัง
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn" onClick={togglePosters}>
+            {showPosters ? '🙈 ซ่อนโปสเตอร์' : '👁️ แสดงโปสเตอร์'}
+          </button>
+          <button className="btn btn-primary" onClick={() => setSearchOpen(true)}>
+            + เพิ่มหนัง
+          </button>
+        </div>
       </div>
 
       <input
@@ -112,12 +132,25 @@ export default function Archive({ session }: { session: Session }) {
       )}
 
       <div className="movie-grid">
-        {filtered.map((entry) => (
+        {filtered.map((entry) => {
+          const revealed = showPosters || revealedIds.has(entry.id)
+          return (
           <div key={entry.id} className="card movie-card" onClick={() => setEditingEntry(entry)}>
-            {entry.poster_path ? (
+            {revealed && entry.poster_path ? (
               <img className="movie-poster" src={`${POSTER_BASE}${entry.poster_path}`} alt={entry.title} />
-            ) : (
+            ) : revealed ? (
               <div className="movie-poster-placeholder">🎬</div>
+            ) : (
+              <button
+                type="button"
+                className="movie-poster-placeholder poster-hidden"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  revealOne(entry.id)
+                }}
+              >
+                🙈<span>แตะเพื่อดูปก</span>
+              </button>
             )}
             <div className="movie-card-body">
               <span className={`status-badge ${entry.status}`}>{STATUS_LABEL[entry.status]}</span>
@@ -129,11 +162,13 @@ export default function Archive({ session }: { session: Session }) {
               {entry.rating !== null && <RatingBadge value={entry.rating} />}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {searchOpen && (
         <SearchModal
+          showPosters={showPosters}
           onClose={closeAll}
           onSelect={(movie) => {
             setSearchOpen(false)
@@ -143,7 +178,13 @@ export default function Archive({ session }: { session: Session }) {
       )}
 
       {pendingMovie && (
-        <EntryModal session={session} movie={pendingMovie} onClose={closeAll} onSaved={handleSaved} />
+        <EntryModal
+          session={session}
+          movie={pendingMovie}
+          showPosters={showPosters}
+          onClose={closeAll}
+          onSaved={handleSaved}
+        />
       )}
 
       {editingEntry && (
@@ -157,6 +198,7 @@ export default function Archive({ session }: { session: Session }) {
             overview: editingEntry.overview,
           }}
           existing={editingEntry}
+          showPosters={showPosters}
           onClose={closeAll}
           onSaved={handleSaved}
         />

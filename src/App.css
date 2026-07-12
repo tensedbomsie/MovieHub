@@ -348,6 +348,20 @@ input, select, textarea {
   font-size: 2rem;
 }
 
+.poster-hidden {
+  flex-direction: column;
+  gap: 0.4rem;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.poster-hidden span {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
 .movie-card-body {
   padding: 0.6rem 0.7rem 0.8rem;
   display: flex;
