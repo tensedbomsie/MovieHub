@@ -26,7 +26,7 @@ export default function EntryModal({
 }) {
   const [revealed, setRevealed] = useState(false)
   const [posterHidden, setPosterHidden] = useState(existing?.poster_hidden ?? false)
-  const [status, setStatus] = useState<WatchStatus>(existing?.status ?? 'want')
+  const [status, setStatus] = useState<WatchStatus>(existing?.status ?? 'watched')
   const [rating, setRating] = useState<number | null>(existing?.rating ?? null)
   const [review, setReview] = useState(existing?.review ?? '')
   const [watchDate, setWatchDate] = useState(existing?.watch_date ?? '')
