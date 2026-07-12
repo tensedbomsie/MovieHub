@@ -8,7 +8,7 @@ export const POSTER_BASE = 'https://image.tmdb.org/t/p/w342'
 export async function searchMovies(query: string): Promise<TmdbSearchResult[]> {
   if (!query.trim()) return []
   const res = await fetch(
-    `${BASE_URL}/search/movie?api_key=${API_KEY}&language=th-TH&query=${encodeURIComponent(query)}`,
+    `${BASE_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${encodeURIComponent(query)}`,
   )
   if (!res.ok) throw new Error('TMDb search failed')
   const data = await res.json()
