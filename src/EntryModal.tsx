@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import { POSTER_BASE } from './lib/tmdb'
 import RatingInput from './RatingInput'
-import type { Reflection, TmdbSearchResult, WatchEntry, WatchStatus } from './types'
+import type { Category, Reflection, TmdbSearchResult, WatchEntry, WatchStatus } from './types'
 
 const STATUS_OPTIONS: { id: WatchStatus; label: string }[] = [
   { id: 'want', label: 'อยากดู' },
@@ -15,12 +15,14 @@ export default function EntryModal({
   session,
   movie,
   existing,
+  category,
   onClose,
   onSaved,
 }: {
   session: Session
   movie: TmdbSearchResult
   existing?: WatchEntry
+  category: Category
   onClose: () => void
   onSaved: () => void
 }) {
@@ -72,6 +74,7 @@ export default function EntryModal({
       tags,
       reflections,
       poster_hidden: posterHidden,
+      category: existing?.category ?? category,
       updated_at: new Date().toISOString(),
     }
     if (existing) {

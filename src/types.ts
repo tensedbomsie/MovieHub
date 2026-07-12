@@ -1,5 +1,7 @@
 export type WatchStatus = 'want' | 'watching' | 'watched'
 
+export type Category = 'movie' | 'series' | 'anime'
+
 export type Reflection = {
   id: string
   date: string
@@ -21,6 +23,7 @@ export type WatchEntry = {
   tags: string[]
   reflections: Reflection[]
   poster_hidden: boolean
+  category: Category
   created_at: string
   updated_at: string
 }

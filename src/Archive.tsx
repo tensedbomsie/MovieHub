@@ -5,7 +5,7 @@ import { POSTER_BASE } from './lib/tmdb'
 import { RatingBadge } from './RatingInput'
 import SearchModal from './SearchModal'
 import EntryModal from './EntryModal'
-import type { TmdbSearchResult, WatchEntry, WatchStatus } from './types'
+import type { Category, TmdbSearchResult, WatchEntry, WatchStatus } from './types'
 
 const STATUS_LABEL: Record<WatchStatus, string> = {
   want: 'อยากดู',
@@ -13,7 +13,13 @@ const STATUS_LABEL: Record<WatchStatus, string> = {
   watched: 'ดูแล้ว',
 }
 
-export default function Archive({ session }: { session: Session }) {
+const CATEGORY_LABEL: Record<Category, { title: string; addButton: string; empty: string }> = {
+  movie: { title: '🎬 Archive หนังของฉัน', addButton: '+ เพิ่มหนัง', empty: 'ยังไม่มีหนังในคลัง' },
+  series: { title: '📺 Archive ซีรี่ย์ของฉัน', addButton: '+ เพิ่มซีรี่ย์', empty: 'ยังไม่มีซีรี่ย์ในคลัง' },
+  anime: { title: '🎌 Archive อนิเมะของฉัน', addButton: '+ เพิ่มอนิเมะ', empty: 'ยังไม่มีอนิเมะในคลัง' },
+}
+
+export default function Archive({ session, category }: { session: Session; category: Category }) {
   const [entries, setEntries] = useState<WatchEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<WatchStatus | 'all'>('all')
@@ -39,6 +45,7 @@ export default function Archive({ session }: { session: Session }) {
     const { data } = await supabase
       .from('watch_entries')
       .select('*')
+      .eq('category', category)
       .order('updated_at', { ascending: false })
     setEntries(data ?? [])
     setLoading(false)
@@ -46,7 +53,7 @@ export default function Archive({ session }: { session: Session }) {
 
   useEffect(() => {
     refresh()
-  }, [])
+  }, [category])
 
   const allTags = useMemo(() => {
     const set = new Set<string>()
@@ -75,9 +82,9 @@ export default function Archive({ session }: { session: Session }) {
   return (
     <div className="fade-in">
       <div className="page-header">
-        <h1>🎬 Archive หนังของฉัน</h1>
+        <h1>{CATEGORY_LABEL[category].title}</h1>
         <button className="btn btn-primary" onClick={() => setSearchOpen(true)}>
-          + เพิ่มหนัง
+          {CATEGORY_LABEL[category].addButton}
         </button>
       </div>
 
@@ -118,7 +125,9 @@ export default function Archive({ session }: { session: Session }) {
 
       {!loading && filtered.length === 0 && (
         <div className="empty-state">
-          {entries.length === 0 ? 'ยังไม่มีหนังในคลัง กด "+ เพิ่มหนัง" เพื่อเริ่มบันทึกได้เลย' : 'ไม่พบหนังที่ตรงกับตัวกรอง'}
+          {entries.length === 0
+            ? `${CATEGORY_LABEL[category].empty} กด "${CATEGORY_LABEL[category].addButton}" เพื่อเริ่มบันทึกได้เลย`
+            : 'ไม่พบรายการที่ตรงกับตัวกรอง'}
         </div>
       )}
 
@@ -172,6 +181,7 @@ export default function Archive({ session }: { session: Session }) {
 
       {searchOpen && (
         <SearchModal
+          category={category}
           onClose={closeAll}
           onSelect={(movie) => {
             setSearchOpen(false)
@@ -181,7 +191,13 @@ export default function Archive({ session }: { session: Session }) {
       )}
 
       {pendingMovie && (
-        <EntryModal session={session} movie={pendingMovie} onClose={closeAll} onSaved={handleSaved} />
+        <EntryModal
+          session={session}
+          movie={pendingMovie}
+          category={category}
+          onClose={closeAll}
+          onSaved={handleSaved}
+        />
       )}
 
       {editingEntry && (
@@ -195,6 +211,7 @@ export default function Archive({ session }: { session: Session }) {
             overview: editingEntry.overview,
           }}
           existing={editingEntry}
+          category={category}
           onClose={closeAll}
           onSaved={handleSaved}
         />

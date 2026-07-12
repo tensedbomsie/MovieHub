@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { searchMovies, POSTER_BASE } from './lib/tmdb'
-import type { TmdbSearchResult } from './types'
+import { searchByCategory, POSTER_BASE } from './lib/tmdb'
+import type { Category, TmdbSearchResult } from './types'
+
+const CATEGORY_LABEL: Record<Category, { title: string; placeholder: string }> = {
+  movie: { title: 'เพิ่มหนัง', placeholder: 'ชื่อหนัง...' },
+  series: { title: 'เพิ่มซีรี่ย์', placeholder: 'ชื่อซีรี่ย์...' },
+  anime: { title: 'เพิ่มอนิเมะ', placeholder: 'ชื่ออนิเมะ...' },
+}
 
 export default function SearchModal({
+  category,
   onClose,
   onSelect,
 }: {
+  category: Category
   onClose: () => void
   onSelect: (movie: TmdbSearchResult) => void
 }) {
@@ -13,13 +21,14 @@ export default function SearchModal({
   const [results, setResults] = useState<TmdbSearchResult[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const labels = CATEGORY_LABEL[category]
 
   const runSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      const r = await searchMovies(query)
+      const r = await searchByCategory(category, query)
       setResults(r)
     } catch {
       setError('ค้นหาไม่สำเร็จ ตรวจสอบ TMDb API key ใน .env.local')
@@ -30,14 +39,14 @@ export default function SearchModal({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>เพิ่มหนัง</h2>
-        <p className="modal-sub">ค้นหาชื่อหนังจาก TMDb</p>
+        <h2>{labels.title}</h2>
+        <p className="modal-sub">ค้นหาชื่อจาก TMDb</p>
         <form onSubmit={runSearch} className="tag-input-row" style={{ marginBottom: '1rem' }}>
           <input
             className="search-input"
             style={{ marginBottom: 0 }}
             autoFocus
-            placeholder="ชื่อหนัง..."
+            placeholder={labels.placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
