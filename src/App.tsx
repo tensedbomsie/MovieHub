@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './Login'
 import Archive from './Archive'
+import AppSwitcher from './AppSwitcher'
 import type { Category } from './types'
 import './App.css'
 
@@ -37,6 +38,7 @@ function App() {
         <a className="hub-link" href="https://tensedbomsie.github.io/SatoruHUB/" title="กลับไป Satoru HUB">
           🏠
         </a>
+        <AppSwitcher current="Movie Hub" />
         <span className="brand">Movie Hub</span>
         <div className="nav-tabs">
           {TABS.map((t) => (
